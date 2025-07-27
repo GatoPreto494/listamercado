@@ -39,6 +39,36 @@
             font-weight: 600;
         }
 
+        /* Novo estilo para a mensagem de erro */
+        .error-message {
+            background-color: #ffe6e6;
+            border: 1px solid #ff9999;
+            color: #cc0000;
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.95em;
+            animation: fadeIn 0.5s ease-out;
+            position: relative; /* Para o botão de fechar */
+        }
+
+        .error-message .close-btn-error {
+            background: none;
+            border: none;
+            color: #cc0000;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .error-message .close-btn-error:hover {
+            color: #990000;
+        }
+
+
         .welcome-message {
             background-color: #e6f7ff;
             border: 1px solid #91d5ff;
@@ -371,7 +401,7 @@
             width: 80px;
             text-align: right;
         }
-        
+
         li.editing .actions .save-btn,
         li.editing .actions .cancel-btn {
             display: inline-block; /* Mostra os botões de salvar/cancelar */
@@ -615,6 +645,12 @@
 </head>
 <body>
     <div class="container">
+        <div id="app-error-message" class="error-message hidden">
+            <span id="app-error-content"></span>
+            <button class="close-btn-error" onclick="document.getElementById('app-error-message').classList.add('hidden');"><i class="fas fa-times"></i></button>
+        </div>
+
+
         <div id="welcome-message" class="welcome-message hidden">
             <span>👋 Dica: Você pode adicionar preços aos itens para somar o valor da sua compra em tempo real!</span>
             <button class="close-btn" onclick="closeWelcomeMessage()"><i class="fas fa-times"></i></button>
@@ -690,8 +726,8 @@
         let editMode = false;
         let userPhoneNumber = '';
 
-        // *** IMPORTANTE *** SUBSTITUA ESTA URL PELA URL DO SEU GOOGLE APPS SCRIPT WEB APP
-        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxmySJktsghnS1HB2eraKBbmhon1TA4NQCusatmHGLkw6oZIuStHAYEA1WX-lcGBT_KNA/exec'; 
+        // *** IMPORTANTE *** ESTA URL DEVE SER A DO SEU GOOGLE APPS SCRIPT WEB APP
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyQzgpPGs3rxi2wPBquFjjMwkUGbieaNzNl1x6LMLoi7rEtEr-fXWcJx7xVDVxrRqx-/exec'; 
 
         // Configuração dos passos do tour para cada aba
         const tourSteps = {
@@ -728,7 +764,7 @@
             } else {
                 await loadItems();
             }
-            
+
             // Inicia o tour para a aba ativa (Minha Lista por padrão)
             const activeTabButton = document.querySelector('.tab-button.active');
             if (activeTabButton) {
@@ -763,9 +799,31 @@
             });
         }
 
+        // Função para exibir erro na tela
+        function displayAppError(message) {
+            const errorDiv = document.getElementById('app-error-message');
+            const errorContent = document.getElementById('app-error-content');
+            if (errorDiv && errorContent) {
+                errorContent.textContent = 'Erro de comunicação: ' + message; // Mais específico
+                errorDiv.classList.remove('hidden');
+            }
+        }
+
+        // Função para ocultar erro na tela
+        function hideAppError() {
+            const errorDiv = document.getElementById('app-error-message');
+            if (errorDiv) {
+                errorDiv.classList.add('hidden');
+            }
+        }
+
+
         async function sendDataToBackend(action, data = {}) {
+            hideAppError(); // Oculta qualquer erro anterior ao tentar enviar nova requisição
+
             if (!userPhoneNumber) {
                 console.warn("Nenhum número de telefone definido. Não é possível enviar dados para o backend.");
+                displayAppError("Telefone não cadastrado. Por favor, reinicie e digite seu telefone.");
                 return { success: false, message: "Telefone não cadastrado." };
             }
 
@@ -785,18 +843,19 @@
                 });
 
                 if (!response.ok) {
-                    throw new Error(`Erro HTTP: ${response.status}`);
+                    const errorText = await response.text();
+                    throw new Error(`Erro HTTP ${response.status}: ${errorText || response.statusText}`);
                 }
 
                 const result = await response.json();
                 if (!result.success) {
-                    alert(`Erro ao interagir com a planilha: ${result.message}`);
+                    displayAppError(`Erro na planilha (backend): ${result.message}`); // Mensagem mais clara
                     console.error("Erro do backend:", result.message);
                 }
                 return result;
 
             } catch (error) {
-                alert(`Ocorreu um erro de comunicação com o servidor: ${error.message}. Verifique o console para mais detalhes.`);
+                displayAppError(`Falha na requisição: ${error.message}. Verifique sua conexão e tente novamente.`); // Mais dicas
                 console.error("Erro na requisição ao Apps Script:", error);
                 return { success: false, message: `Erro de rede: ${error.message}` };
             }
@@ -810,7 +869,7 @@
                 updatePurchasedCount();
                 return;
             }
-            
+
             const result = await sendDataToBackend('load');
             if (result.success && result.items) {
                 items = result.items;
@@ -837,6 +896,7 @@
 
             if (!shoppingListUl || !purchasedListUl || !pricedListUl) {
                 console.error("Um ou mais elementos UL não foram encontrados. Verifique os IDs no HTML.");
+                displayAppError("Erro interno: Elementos da lista não encontrados.");
                 return;
             }
 
@@ -991,7 +1051,7 @@
 
             if (!itemInput || !quantityInput || !priceInput) {
                 console.error("Um dos campos de entrada (item, quantidade, preço) não foi encontrado.");
-                alert("Erro: Não foi possível adicionar o item. Por favor, recarregue a página.");
+                displayAppError("Erro interno: Campos de entrada não encontrados.");
                 return;
             }
 
@@ -1183,15 +1243,14 @@
 
             alert(message);
 
-            // AÇÃO NOVA: Após finalizar a compra, zera a lista principal e move tudo para comprados efetivamente
             items.forEach(item => {
-                item.purchased = true; // Marca todos como comprados
+                item.purchased = true;
             });
-            await saveItems(); // Salva o estado atualizado no backend
-            items = []; // Limpa a lista localmente para uma "nova compra"
-            renderLists(); // Atualiza as listas na tela (Minha Lista ficará vazia)
-            updateTotal(); // Isso fará o total mostrar R$ 0,00
-            updatePurchasedCount(); // Atualiza o contador de comprados
+            await saveItems();
+            items = [];
+            renderLists();
+            updateTotal();
+            updatePurchasedCount();
         }
 
         function updateTotal() {
@@ -1332,7 +1391,7 @@
 
         function completeTourForTab() {
             const tooltip = document.getElementById('tour-tooltip');
-            if (tooltip) { // Verifica se o elemento existe
+            if (tooltip) {
                 tooltip.classList.remove('show');
                 tooltip.classList.add('hidden');
             }
@@ -1388,7 +1447,6 @@
             tooltip.style.left = `${left}px`;
             tooltipArrow.style.display = 'block';
         }
-
     </script>
 </body>
 </html>
