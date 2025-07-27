@@ -1,0 +1,1394 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minha Lista de Mercado Inteligente</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 20px;
+            margin: 0;
+            box-sizing: border-box;
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 800px;
+            box-sizing: border-box;
+            margin-top: 20px;
+            position: relative; /* Para posicionamento dos tooltips */
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.2em;
+            font-weight: 600;
+        }
+
+        .welcome-message {
+            background-color: #e6f7ff;
+            border: 1px solid #91d5ff;
+            color: #1890ff;
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.95em;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .welcome-message.hidden {
+            display: none;
+        }
+
+        .welcome-message .close-btn {
+            background: none;
+            border: none;
+            color: #1890ff;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .welcome-message .close-btn:hover {
+            color: #096dd9;
+        }
+
+        .input-section {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .input-section input[type="text"],
+        .input-section input[type="number"] {
+            flex: 2;
+            padding: 12px 15px;
+            border: 1px solid #d9d9d9;
+            border-radius: 8px;
+            font-size: 1em;
+            min-width: 80px;
+        }
+
+        .input-section input[type="number"] {
+            flex: 0.8;
+        }
+
+        .input-section button {
+            background-color: #28a745; /* Verde Adicionar */
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+            justify-content: center;
+            min-width: 120px;
+        }
+
+        .input-section button:hover {
+            background-color: #218838;
+            transform: translateY(-1px);
+        }
+
+        .input-section button:active {
+            transform: translateY(0);
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 25px;
+            border-bottom: 1px solid #e0e0e0;
+            overflow-x: auto; /* Para rolagem em telas pequenas */
+            -webkit-overflow-scrolling: touch; /* Suaviza rolagem em iOS */
+        }
+
+        .tab-button {
+            background-color: #f8f8f8;
+            color: #555;
+            padding: 12px 20px;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-size: 1.05em;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            white-space: nowrap; /* Evita quebras de linha nos botões */
+        }
+
+        .tab-button:hover {
+            color: #007bff;
+            background-color: #e9f5ff;
+        }
+
+        .tab-button.active {
+            color: #007bff;
+            border-bottom-color: #007bff;
+            background-color: #ffffff;
+            font-weight: 600;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .list-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .list-actions button {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background-color 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        #select-all-btn {
+            background-color: #007bff;
+            color: white;
+        }
+
+        #select-all-btn:hover {
+            background-color: #0056b3;
+        }
+
+        #edit-list-mode-btn {
+            background-color: #ffc107; /* Amarelo Editar */
+            color: #333;
+        }
+        #edit-list-mode-btn:hover {
+            background-color: #e0a800;
+            color: white;
+        }
+
+        #finalize-purchase-btn {
+            background-color: #6f42c1; /* Roxo */
+            color: white;
+        }
+        #finalize-purchase-btn:hover {
+            background-color: #5d35a8;
+        }
+
+
+        .total-price-display {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #333;
+            padding: 5px 10px;
+            background-color: #f5f5f5;
+            border-radius: 5px;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        li {
+            background-color: #f9f9f9;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        li:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        li .item-checkbox {
+            min-width: 20px;
+            min-height: 20px;
+            accent-color: #28a745;
+            cursor: pointer;
+            margin-right: 5px;
+            transform: scale(1.2);
+        }
+
+        li .item-name {
+            flex-grow: 1;
+            font-weight: 500;
+            color: #333;
+            font-size: 1.1em;
+            word-break: break-word; /* Para nomes longos */
+        }
+
+        li .item-quantity,
+        li .item-price {
+            font-size: 0.95em;
+            color: #666;
+            white-space: nowrap;
+        }
+
+        li .item-price {
+            font-weight: 600;
+            color: #007bff;
+        }
+
+        li .actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        li .edit-btn,
+        li .delete-btn,
+        li .save-btn,
+        li .cancel-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: color 0.2s ease;
+            padding: 5px;
+            border-radius: 5px;
+        }
+
+        li .edit-btn {
+            color: #ffc107; /* Amarelo Editar */
+        }
+
+        li .edit-btn:hover {
+            color: #e0a800;
+            background-color: #fffbe6;
+        }
+
+        li .delete-btn {
+            color: #dc3545; /* Vermelho Deletar */
+        }
+
+        li .delete-btn:hover {
+            color: #c82333;
+            background-color: #fff0f0;
+        }
+
+        li .save-btn {
+            color: #28a745; /* Verde Salvar */
+        }
+
+        li .save-btn:hover {
+            color: #218838;
+            background-color: #e6ffed;
+        }
+
+        li .cancel-btn {
+            color: #6c757d; /* Cinza Cancelar */
+        }
+
+        li .cancel-btn:hover {
+            color: #5a6268;
+            background-color: #f0f2f5;
+        }
+
+        /* Classes para o modo de edição em massa */
+        li.editing .item-name,
+        li.editing .item-quantity,
+        li.editing .item-price,
+        li.editing .edit-btn,
+        li.editing .delete-btn {
+            display: none;
+        }
+        li.editing .edit-inputs {
+            display: flex;
+            gap: 5px;
+            flex-grow: 1;
+            align-items: center;
+        }
+
+        li .edit-inputs {
+            display: none; /* Escondido por padrão */
+        }
+
+        li .edit-input {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+
+        li .edit-input.edit-name-input {
+            flex-grow: 1;
+            min-width: 80px;
+        }
+
+        li .edit-input.edit-quantity-input {
+            width: 60px;
+            text-align: center;
+        }
+
+        li .edit-input.edit-price-input {
+            width: 80px;
+            text-align: right;
+        }
+        
+        li.editing .actions .save-btn,
+        li.editing .actions .cancel-btn {
+            display: inline-block; /* Mostra os botões de salvar/cancelar */
+        }
+        li .actions .save-btn,
+        li .actions .cancel-btn {
+            display: none; /* Esconde por padrão */
+        }
+
+        .placeholder-item {
+            text-align: center;
+            color: #888;
+            padding: 20px;
+            font-style: italic;
+            background-color: #f0f0f0;
+            border: 1px dashed #ccc;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        /* Animações */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Tooltip de tour */
+        .tour-tooltip {
+            position: absolute;
+            background-color: #333;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 0.9em;
+            max-width: 250px;
+            z-index: 1000;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .tour-tooltip.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .tour-tooltip .tooltip-content {
+            flex-grow: 1;
+        }
+
+        .tour-tooltip .tooltip-nav {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        .tour-tooltip button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.85em;
+            transition: background-color 0.2s ease;
+        }
+
+        .tour-tooltip button:hover {
+            background-color: #0056b3;
+        }
+
+        .tour-tooltip .tooltip-arrow {
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-top: 10px solid #333; /* Para setas em baixo */
+            bottom: -10px;
+            left: 20px;
+        }
+
+        .tour-tooltip.bottom .tooltip-arrow {
+            border-bottom: 10px solid #333;
+            border-top: none;
+            top: -10px;
+        }
+
+        .tour-tooltip.left .tooltip-arrow {
+            border-right: 10px solid #333;
+            border-left: none;
+            right: -10px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .tour-tooltip.right .tooltip-arrow {
+            border-left: 10px solid #333;
+            border-right: none;
+            left: -10px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        /* Modal para pedir telefone */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000; /* Acima de tudo */
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+        }
+        .modal-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .modal-content h2 {
+            margin-top: 0;
+            color: #333;
+        }
+        .modal-content p {
+            color: #555;
+            line-height: 1.5;
+        }
+        .modal-content input {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1em;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .modal-content button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+        }
+        .modal-content button:hover {
+            background-color: #0056b3;
+        }
+        .hidden {
+            display: none;
+        }
+
+        /* Responsividade */
+        @media (max-width: 600px) {
+            .input-section {
+                flex-direction: column;
+            }
+            .input-section input,
+            .input-section button {
+                width: 100%;
+                flex: none;
+            }
+            .list-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .list-actions, .total-price-display {
+                width: 100%;
+                text-align: center;
+                justify-content: center;
+            }
+            li {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            li .item-name {
+                flex-basis: 100%;
+            }
+            li .actions {
+                flex-basis: 100%;
+                justify-content: flex-end;
+            }
+            li .item-checkbox {
+                order: -1; /* Mover checkbox para o início */
+            }
+            li.editing .edit-inputs {
+                flex-wrap: wrap;
+            }
+            li.editing .edit-input {
+                flex-basis: 100%;
+            }
+            .tour-tooltip {
+                left: 50% !important;
+                transform: translateX(-50%);
+                top: auto !important;
+                bottom: 10px; /* Posição fixa no rodapé para telas pequenas */
+                width: calc(100% - 40px);
+                max-width: none;
+            }
+            .tour-tooltip .tooltip-arrow {
+                display: none; /* Não exibe seta em telas pequenas */
+            }
+        }
+
+        @media (max-width: 400px) {
+            .container {
+                padding: 20px;
+            }
+            h1 {
+                font-size: 1.8em;
+            }
+            .tab-button {
+                padding: 10px 15px;
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="welcome-message" class="welcome-message hidden">
+            <span>👋 Dica: Você pode adicionar preços aos itens para somar o valor da sua compra em tempo real!</span>
+            <button class="close-btn" onclick="closeWelcomeMessage()"><i class="fas fa-times"></i></button>
+        </div>
+
+        <h1>🛒 Minha Lista de Mercado</h1>
+
+        <div class="input-section">
+            <input type="text" id="item-input" placeholder="Adicionar item (ex: Arroz)" data-tour="item-input-name">
+            <input type="number" id="quantity-input" placeholder="Quant." min="1" value="1" data-tour="item-input-qty">
+            <input type="number" id="price-input" placeholder="Preço (opcional)" min="0" step="0.01" data-tour="item-input-price">
+            <button id="add-item-btn" data-tour="add-item-btn"><i class="fas fa-plus"></i> Adicionar</button>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-button active" data-tab="my-list" data-tour="tab-my-list">Minha Lista</button>
+            <button class="tab-button" data-tab="purchased" data-tour="tab-purchased">Comprados (<span id="purchased-count">0</span>)</button>
+            <button class="tab-button" data-tab="priced-items" data-tour="tab-priced-items">Itens com Preço</button>
+        </div>
+
+        <div id="my-list" class="tab-content active">
+            <div class="list-header">
+                <div class="list-actions">
+                    <button id="select-all-btn" data-tour="btn-select-all"><i class="fas fa-check-double"></i> Selecionar Todos</button>
+                    <button id="edit-list-mode-btn" data-tour="btn-edit-list"><i class="fas fa-edit"></i> Editar Lista</button>
+                    <button id="finalize-purchase-btn" data-tour="btn-finalize-purchase"><i class="fas fa-shopping-cart"></i> Finalizar Compra</button>
+                </div>
+                <div class="total-price-display" data-tour="display-total">
+                    Total da Compra: <span id="current-total">R$ 0,00</span>
+                </div>
+            </div>
+            <ul id="shopping-list">
+                <li class="placeholder-item">Sua lista está vazia! Adicione alguns itens acima.</li>
+            </ul>
+        </div>
+
+        <div id="purchased" class="tab-content">
+            <ul id="purchased-list">
+                <li class="placeholder-item">Nenhum item comprado ainda.</li>
+            </ul>
+        </div>
+
+        <div id="priced-items" class="tab-content">
+            <ul id="priced-items-list">
+                <li class="placeholder-item">Nenhum item com preço salvo ainda.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div id="tour-tooltip" class="tour-tooltip hidden">
+        <span class="tooltip-content"></span>
+        <div class="tooltip-nav">
+            <button class="skip-tour-btn">Pular Tour</button>
+            <button class="next-tour-btn">Entendi / Próximo</button>
+        </div>
+        <div class="tooltip-arrow"></div>
+    </div>
+
+    <div id="phone-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h2>Bem-vindo(a) à sua Lista de Mercado!</h2>
+            <p>Para salvar e acessar suas listas em diferentes dispositivos, por favor, digite seu número de telefone (apenas números):</p>
+            <input type="tel" id="user-phone-input" placeholder="Ex: 5511987654321" pattern="[0-9]*" inputmode="numeric">
+            <button id="save-phone-btn">Entrar na Lista</button>
+        </div>
+    </div>
+
+    <script>
+        const HIDE_WELCOME_MESSAGE_KEY = 'hideWelcomeMessage';
+        const TOUR_COMPLETED_KEY_PREFIX = 'tourCompleted_';
+        const USER_PHONE_KEY = 'userPhoneNumber';
+        let items = [];
+        let editMode = false;
+        let userPhoneNumber = '';
+
+        // *** IMPORTANTE *** SUBSTITUA ESTA URL PELA URL DO SEU GOOGLE APPS SCRIPT WEB APP
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxA_38gf79E5zL49lbQ8NhIQdEtnFDa8bdOkr8j-ThZaFykMLpkCoYVv87iKjUip-tUdA/exec'; 
+
+        // Configuração dos passos do tour para cada aba
+        const tourSteps = {
+            'my-list': [
+                { selector: '#item-input', message: 'Digite o nome do item que deseja adicionar à sua lista.' },
+                { selector: '#quantity-input', message: 'Informe a quantidade desejada deste item.' },
+                { selector: '#price-input', message: 'Se quiser acompanhar o valor da compra, digite o preço unitário aqui (opcional).' },
+                { selector: '#add-item-btn', message: 'Clique para adicionar o item à sua lista principal.' },
+                { selector: '#select-all-btn', message: 'Marque todos os itens visíveis da sua lista como "Comprados" de uma vez.' },
+                { selector: '#edit-list-mode-btn', message: 'Clique aqui para ativar o modo de edição rápida de todos os itens da lista.' },
+                { selector: '#finalize-purchase-btn', message: 'Ao finalizar suas compras, clique para ver um resumo e zerar o total para uma nova lista.' },
+                { selector: '#current-total', message: 'Este é o valor total da sua compra em tempo real, somando os itens com preço na sua lista.' }
+            ],
+            'purchased': [
+                { selector: '#purchased-count', message: 'Aqui você pode ver o número de itens que já foram marcados como "comprados".' },
+                { selector: '#purchased-list', message: 'Esta aba mostra todos os itens que você já marcou como comprados.' }
+            ],
+            'priced-items': [
+                { selector: '#priced-items-list', message: 'Nesta aba, você encontra todos os itens que já tiveram um preço registrado, mesmo os comprados. Ótimo para consultar preços antigos!' }
+            ]
+        };
+        let currentTourTab = '';
+        let currentStepIndex = 0;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            setupTabs();
+            setupEventListeners();
+            displayWelcomeMessage();
+
+            userPhoneNumber = localStorage.getItem(USER_PHONE_KEY);
+
+            if (!userPhoneNumber) {
+                showPhoneModal();
+            } else {
+                await loadItems();
+            }
+            
+            // Inicia o tour para a aba ativa (Minha Lista por padrão)
+            const activeTabButton = document.querySelector('.tab-button.active');
+            if (activeTabButton) {
+                startTour(activeTabButton.dataset.tab);
+            }
+        });
+
+        async function showPhoneModal() {
+            const modal = document.getElementById('phone-modal');
+            const phoneInput = document.getElementById('user-phone-input');
+            const savePhoneBtn = document.getElementById('save-phone-btn');
+
+            modal.classList.remove('hidden');
+            phoneInput.focus();
+
+            savePhoneBtn.onclick = async () => {
+                let phone = phoneInput.value.trim().replace(/\D/g, ''); // Remove caracteres não numéricos
+                if (phone.length < 8) { // Mínimo razoável para um telefone
+                    alert('Por favor, digite um número de telefone válido (apenas números).');
+                    return;
+                }
+                userPhoneNumber = phone;
+                localStorage.setItem(USER_PHONE_KEY, userPhoneNumber);
+                modal.classList.add('hidden');
+                await loadItems(); // Agora carrega a lista para o novo/existente usuário
+            };
+
+            phoneInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    savePhoneBtn.click();
+                }
+            });
+        }
+
+        async function sendDataToBackend(action, data = {}) {
+            if (!userPhoneNumber) {
+                console.warn("Nenhum número de telefone definido. Não é possível enviar dados para o backend.");
+                return { success: false, message: "Telefone não cadastrado." };
+            }
+
+            const payload = {
+                action: action,
+                phoneNumber: userPhoneNumber,
+                ...data
+            };
+
+            try {
+                const response = await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Erro HTTP: ${response.status}`);
+                }
+
+                const result = await response.json();
+                if (!result.success) {
+                    alert(`Erro ao interagir com a planilha: ${result.message}`);
+                    console.error("Erro do backend:", result.message);
+                }
+                return result;
+
+            } catch (error) {
+                alert(`Ocorreu um erro de comunicação com o servidor: ${error.message}. Verifique o console para mais detalhes.`);
+                console.error("Erro na requisição ao Apps Script:", error);
+                return { success: false, message: `Erro de rede: ${error.message}` };
+            }
+        }
+
+        async function loadItems() {
+            if (!userPhoneNumber) {
+                items = [];
+                renderLists();
+                updateTotal();
+                updatePurchasedCount();
+                return;
+            }
+            
+            const result = await sendDataToBackend('load');
+            if (result.success && result.items) {
+                items = result.items;
+            } else {
+                items = [];
+            }
+            renderLists();
+            updateTotal();
+            updatePurchasedCount();
+        }
+
+        function saveItems() {
+            if (!userPhoneNumber) {
+                console.warn("Nenhum número de telefone definido. Não é possível salvar no backend.");
+                return;
+            }
+            sendDataToBackend('save', { items: items }); 
+        }
+
+        function renderLists() {
+            const shoppingListUl = document.getElementById('shopping-list');
+            const purchasedListUl = document.getElementById('purchased-list');
+            const pricedListUl = document.getElementById('priced-items-list');
+
+            if (!shoppingListUl || !purchasedListUl || !pricedListUl) {
+                console.error("Um ou mais elementos UL não foram encontrados. Verifique os IDs no HTML.");
+                return;
+            }
+
+            shoppingListUl.innerHTML = '';
+            purchasedListUl.innerHTML = '';
+            pricedListUl.innerHTML = '';
+
+            const activeItems = items.filter(item => !item.purchased);
+            const purchasedItems = items.filter(item => item.purchased);
+            const pricedItems = items.filter(item => item.price && item.price > 0);
+
+            if (activeItems.length === 0) {
+                shoppingListUl.innerHTML = '<li class="placeholder-item">Sua lista está vazia! Adicione alguns itens acima.</li>';
+            } else {
+                activeItems.forEach(item => shoppingListUl.appendChild(createListItem(item, 'my-list')));
+            }
+
+            if (purchasedItems.length === 0) {
+                purchasedListUl.innerHTML = '<li class="placeholder-item">Nenhum item comprado ainda.</li>';
+            } else {
+                purchasedItems.forEach(item => purchasedListUl.appendChild(createListItem(item, 'purchased')));
+            }
+
+            if (pricedItems.length === 0) {
+                pricedListUl.innerHTML = '<li class="placeholder-item">Nenhum item com preço salvo ainda.</li>';
+            } else {
+                pricedItems.forEach(item => pricedListUl.appendChild(createListItem(item, 'priced-items')));
+            }
+
+            if (editMode) {
+                document.querySelectorAll('#shopping-list li').forEach(li => {
+                    const itemId = li.dataset.id;
+                    const item = items.find(i => i.id == itemId);
+                    if (item) enableEdit(li, item, true);
+                });
+            }
+        }
+
+        function createListItem(item, tabType) {
+            const li = document.createElement('li');
+            li.setAttribute('data-id', item.id);
+
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.className = 'item-checkbox';
+            checkbox.checked = item.purchased;
+            checkbox.addEventListener('change', () => togglePurchased(item.id));
+
+            const itemNameSpan = document.createElement('span');
+            itemNameSpan.className = 'item-name';
+            itemNameSpan.textContent = item.name;
+
+            const itemQuantitySpan = document.createElement('span');
+            itemQuantitySpan.className = 'item-quantity';
+            itemQuantitySpan.textContent = `x${item.quantity}`;
+
+            const itemPriceSpan = document.createElement('span');
+            itemPriceSpan.className = 'item-price';
+            itemPriceSpan.textContent = item.price ? formatCurrency(item.price * item.quantity) : '';
+
+            const actionsDiv = document.createElement('div');
+            actionsDiv.className = 'actions';
+
+            const editBtn = document.createElement('button');
+            editBtn.className = 'edit-btn';
+            editBtn.innerHTML = '<i class="fas fa-edit"></i>';
+            editBtn.title = 'Editar Item';
+            editBtn.addEventListener('click', () => enableEdit(li, item, false));
+
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'delete-btn';
+            deleteBtn.innerHTML = '<i class="fas fa-trash-alt"></i>';
+            deleteBtn.title = 'Remover Item';
+            deleteBtn.addEventListener('click', () => deleteItem(item.id));
+
+            const editInputsDiv = document.createElement('div');
+            editInputsDiv.className = 'edit-inputs';
+
+            const editNameInput = document.createElement('input');
+            editNameInput.type = 'text';
+            editNameInput.className = 'edit-input edit-name-input';
+            editNameInput.value = item.name;
+            editNameInput.placeholder = 'Nome do item';
+            editNameInput.addEventListener('change', (e) => updateItemProperty(item.id, 'name', e.target.value));
+
+            const editQuantityInput = document.createElement('input');
+            editQuantityInput.type = 'number';
+            editQuantityInput.className = 'edit-input edit-quantity-input';
+            editQuantityInput.value = item.quantity;
+            editQuantityInput.min = '1';
+            editQuantityInput.placeholder = 'Quant.';
+            editQuantityInput.addEventListener('change', (e) => updateItemProperty(item.id, 'quantity', parseInt(e.target.value)));
+
+            const editPriceInput = document.createElement('input');
+            editPriceInput.type = 'number';
+            editPriceInput.className = 'edit-input edit-price-input';
+            editPriceInput.value = item.price || '';
+            editPriceInput.min = '0';
+            editPriceInput.step = '0.01';
+            editPriceInput.placeholder = 'Preço';
+            editPriceInput.addEventListener('change', (e) => updateItemProperty(item.id, 'price', parseFloat(e.target.value) || 0));
+
+            editInputsDiv.appendChild(editNameInput);
+            editInputsDiv.appendChild(editQuantityInput);
+            editInputsDiv.appendChild(editPriceInput);
+
+            const saveBtn = document.createElement('button');
+            saveBtn.className = 'save-btn';
+            saveBtn.innerHTML = '<i class="fas fa-check"></i>';
+            saveBtn.title = 'Salvar Edição';
+            saveBtn.addEventListener('click', () => disableEdit(li));
+
+            const cancelBtn = document.createElement('button');
+            cancelBtn.className = 'cancel-btn';
+            cancelBtn.innerHTML = '<i class="fas fa-times"></i>';
+            cancelBtn.title = 'Cancelar Edição';
+            cancelBtn.addEventListener('click', () => {
+                const originalItem = items.find(i => i.id === item.id);
+                if (originalItem) {
+                    item.name = originalItem.name;
+                    item.quantity = originalItem.quantity;
+                    item.price = originalItem.price;
+                }
+                disableEdit(li);
+            });
+
+
+            if (tabType === 'my-list') {
+                li.appendChild(checkbox);
+            }
+            li.appendChild(itemNameSpan);
+            li.appendChild(itemQuantitySpan);
+            li.appendChild(itemPriceSpan);
+            li.appendChild(editInputsDiv);
+            actionsDiv.appendChild(editBtn);
+            actionsDiv.appendChild(deleteBtn);
+            actionsDiv.appendChild(saveBtn);
+            actionsDiv.appendChild(cancelBtn);
+            li.appendChild(actionsDiv);
+
+            if (editMode && tabType === 'my-list') {
+                enableEdit(li, item, true);
+            }
+
+            return li;
+        }
+
+        function addItem() {
+            const itemInput = document.getElementById('item-input');
+            const quantityInput = document.getElementById('quantity-input');
+            const priceInput = document.getElementById('price-input');
+
+            if (!itemInput || !quantityInput || !priceInput) {
+                console.error("Um dos campos de entrada (item, quantidade, preço) não foi encontrado.");
+                alert("Erro: Não foi possível adicionar o item. Por favor, recarregue a página.");
+                return;
+            }
+
+            const name = itemInput.value.trim();
+            const quantity = parseInt(quantityInput.value);
+            const price = parseFloat(priceInput.value.replace(',', '.')) || 0;
+
+            if (name === '') {
+                alert('Por favor, digite o nome do item.');
+                return;
+            }
+            if (isNaN(quantity) || quantity <= 0) {
+                alert('Por favor, insira uma quantidade válida (maior que zero).');
+                return;
+            }
+            if (isNaN(price) || price < 0) {
+                alert('Por favor, insira um preço válido (maior ou igual a zero).');
+                return;
+            }
+
+            const newItem = {
+                id: Date.now(),
+                name: name,
+                quantity: quantity,
+                price: price,
+                purchased: false
+            };
+
+            items.push(newItem);
+            saveItems();
+            renderLists();
+            updateTotal();
+            itemInput.value = '';
+            quantityInput.value = '1';
+            priceInput.value = '';
+        }
+
+        function togglePurchased(id) {
+            const itemIndex = items.findIndex(item => item.id === id);
+            if (itemIndex > -1) {
+                items[itemIndex].purchased = !items[itemIndex].purchased;
+                saveItems();
+                renderLists();
+                updateTotal();
+                updatePurchasedCount();
+            }
+        }
+
+        function deleteItem(id) {
+            if (confirm('Tem certeza que deseja remover este item?')) {
+                items = items.filter(item => item.id !== id);
+                saveItems();
+                renderLists();
+                updateTotal();
+                updatePurchasedCount();
+            }
+        }
+
+        function enableEdit(liElement, item, isMassEdit = false) {
+            liElement.classList.add('editing');
+
+            liElement.querySelector('.item-name').style.display = 'none';
+            liElement.querySelector('.item-quantity').style.display = 'none';
+            liElement.querySelector('.item-price').style.display = 'none';
+            liElement.querySelector('.edit-btn').style.display = 'none';
+            liElement.querySelector('.delete-btn').style.display = 'none';
+
+            liElement.querySelector('.edit-inputs').style.display = 'flex';
+
+            const editNameInput = liElement.querySelector('.edit-name-input');
+            const editQuantityInput = liElement.querySelector('.edit-quantity-input');
+            const editPriceInput = liElement.querySelector('.edit-price-input');
+
+            editNameInput.value = item.name;
+            editQuantityInput.value = item.quantity;
+            editPriceInput.value = item.price || '';
+
+            if (!isMassEdit) {
+                liElement.querySelector('.save-btn').style.display = 'inline-block';
+                liElement.querySelector('.cancel-btn').style.display = 'inline-block';
+            }
+        }
+
+        function disableEdit(liElement) {
+            liElement.classList.remove('editing');
+            renderLists();
+            updateTotal();
+        }
+
+        function updateItemProperty(id, property, value) {
+            const itemIndex = items.findIndex(item => item.id === id);
+            if (itemIndex > -1) {
+                if (property === 'quantity') {
+                    const parsedValue = parseInt(value);
+                    if (isNaN(parsedValue) || parsedValue <= 0) {
+                        alert('Quantidade deve ser um número válido e maior que zero.');
+                        renderLists();
+                        return;
+                    }
+                    items[itemIndex][property] = parsedValue;
+                } else if (property === 'price') {
+                    const parsedValue = parseFloat(String(value).replace(',', '.')) || 0;
+                    if (isNaN(parsedValue) || parsedValue < 0) {
+                        alert('Preço deve ser um número válido e maior ou igual a zero.');
+                        renderLists();
+                        return;
+                    }
+                    items[itemIndex][property] = parsedValue;
+                } else if (property === 'name') {
+                    if (value.trim() === '') {
+                        alert('O nome do item não pode ser vazio.');
+                        renderLists();
+                        return;
+                    }
+                    items[itemIndex][property] = value.trim();
+                }
+                saveItems();
+                updateTotal();
+                if (!editMode) {
+                    renderLists();
+                }
+            }
+        }
+
+        function selectAllItems() {
+            const activeItems = items.filter(item => !item.purchased);
+            if (activeItems.length === 0) {
+                alert('Não há itens na sua lista para selecionar.');
+                return;
+            }
+
+            const allSelected = activeItems.every(item => item.purchased);
+
+            activeItems.forEach(item => {
+                item.purchased = !allSelected;
+            });
+            saveItems();
+            renderLists();
+            updateTotal();
+            updatePurchasedCount();
+        }
+
+        function toggleEditMode() {
+            editMode = !editMode;
+            const editButton = document.getElementById('edit-list-mode-btn');
+            if (editButton) {
+                if (editMode) {
+                    editButton.innerHTML = '<i class="fas fa-check"></i> Sair do Modo Edição';
+                    editButton.style.backgroundColor = '#28a745';
+                    editButton.style.color = 'white';
+                } else {
+                    editButton.innerHTML = '<i class="fas fa-edit"></i> Editar Lista';
+                    editButton.style.backgroundColor = '#ffc107';
+                    editButton.style.color = '#333';
+                }
+            }
+            renderLists();
+        }
+
+        async function finalizePurchase() {
+            const total = items.reduce((sum, item) => {
+                if (item.price) {
+                    return sum + (item.price * item.quantity);
+                }
+                return sum;
+            }, 0);
+
+            let message = `Sua compra total deu: ${formatCurrency(total)}\n\n`;
+
+            const purchasedItems = items.filter(item => item.purchased);
+            if (purchasedItems.length > 0) {
+                message += "Itens que você levou:\n";
+                purchasedItems.forEach(item => {
+                    message += `- ${item.name} (x${item.quantity}) ${item.price ? formatCurrency(item.price * item.quantity) : ''}\n`;
+                });
+            } else {
+                message += "Nenhum item marcado como levado ainda.\n";
+            }
+
+            const remainingItems = items.filter(item => !item.purchased);
+            if (remainingItems.length > 0) {
+                message += "\nItens que ficaram na lista:\n";
+                remainingItems.forEach(item => {
+                    message += `- ${item.name} (x${item.quantity}) ${item.price ? formatCurrency(item.price * item.quantity) : ''}\n`;
+                });
+            } else {
+                message += "Parabéns! Todos os itens foram marcados como levados.\n";
+            }
+
+            alert(message);
+
+            // AÇÃO NOVA: Após finalizar a compra, zera a lista principal e move tudo para comprados efetivamente
+            items.forEach(item => {
+                item.purchased = true; // Marca todos como comprados
+            });
+            await saveItems(); // Salva o estado atualizado no backend
+            items = []; // Limpa a lista localmente para uma "nova compra"
+            renderLists(); // Atualiza as listas na tela (Minha Lista ficará vazia)
+            updateTotal(); // Isso fará o total mostrar R$ 0,00
+            updatePurchasedCount(); // Atualiza o contador de comprados
+        }
+
+        function updateTotal() {
+            const total = items.reduce((sum, item) => {
+                if (item.price) {
+                    return sum + (item.price * item.quantity);
+                }
+                return sum;
+            }, 0);
+            document.getElementById('current-total').textContent = formatCurrency(total);
+        }
+
+        function updatePurchasedCount() {
+            const purchasedItemsCount = items.filter(item => item.purchased).length;
+            document.getElementById('purchased-count').textContent = purchasedItemsCount;
+        }
+
+        function formatCurrency(value) {
+            return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+
+        function setupTabs() {
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    tabContents.forEach(content => content.classList.remove('active'));
+
+                    button.classList.add('active');
+                    const targetTabId = button.dataset.tab;
+                    document.getElementById(targetTabId).classList.add('active');
+
+                    if (editMode && targetTabId !== 'my-list') {
+                        toggleEditMode();
+                    }
+
+                    startTour(targetTabId);
+                });
+            });
+        }
+
+        function setupEventListeners() {
+            document.getElementById('add-item-btn')?.addEventListener('click', addItem);
+            document.getElementById('item-input')?.addEventListener('keypress', (e) => { if (e.key === 'Enter') addItem(); });
+            document.getElementById('quantity-input')?.addEventListener('keypress', (e) => { if (e.key === 'Enter') addItem(); });
+            document.getElementById('price-input')?.addEventListener('keypress', (e) => { if (e.key === 'Enter') addItem(); });
+            document.getElementById('select-all-btn')?.addEventListener('click', selectAllItems);
+            document.getElementById('edit-list-mode-btn')?.addEventListener('click', toggleEditMode);
+            document.getElementById('finalize-purchase-btn')?.addEventListener('click', finalizePurchase);
+            document.querySelector('.welcome-message .close-btn')?.addEventListener('click', closeWelcomeMessage);
+
+            document.getElementById('tour-tooltip')?.querySelector('.skip-tour-btn')?.addEventListener('click', skipTour);
+            document.getElementById('tour-tooltip')?.querySelector('.next-tour-btn')?.addEventListener('click', nextTourStep);
+        }
+
+        function displayWelcomeMessage() {
+            const hideMessage = localStorage.getItem(HIDE_WELCOME_MESSAGE_KEY);
+            const welcomeMessage = document.getElementById('welcome-message');
+
+            if (welcomeMessage) {
+                if (hideMessage !== 'true') {
+                    welcomeMessage.classList.remove('hidden');
+                } else {
+                    welcomeMessage.classList.add('hidden');
+                }
+            }
+        }
+
+        function closeWelcomeMessage() {
+            const welcomeMessage = document.getElementById('welcome-message');
+            if (welcomeMessage) {
+                welcomeMessage.classList.add('hidden');
+                localStorage.setItem(HIDE_WELCOME_MESSAGE_KEY, 'true');
+            }
+        }
+
+        // --- Funções do Tour Guiado ---
+
+        function startTour(tabId) {
+            if (localStorage.getItem(TOUR_COMPLETED_KEY_PREFIX + tabId) === 'true') {
+                return;
+            }
+
+            const steps = tourSteps[tabId];
+            if (!steps || steps.length === 0) {
+                return;
+            }
+
+            currentTourTab = tabId;
+            currentStepIndex = 0;
+            showTourStep();
+        }
+
+        function showTourStep() {
+            const tooltip = document.getElementById('tour-tooltip');
+            const tooltipContent = tooltip.querySelector('.tooltip-content');
+            const nextButton = tooltip.querySelector('.next-tour-btn');
+
+            const steps = tourSteps[currentTourTab];
+            if (currentStepIndex >= steps.length) {
+                completeTourForTab();
+                return;
+            }
+
+            const step = steps[currentStepIndex];
+            const targetElement = document.querySelector(step.selector);
+
+            if (!targetElement) {
+                console.warn(`Elemento do tour não encontrado: ${step.selector} na aba ${currentTourTab}. Pulando passo.`);
+                currentStepIndex++;
+                showTourStep();
+                return;
+            }
+
+            tooltipContent.textContent = step.message;
+            positionTooltip(targetElement, tooltip);
+
+            if (currentStepIndex === steps.length - 1) {
+                nextButton.textContent = 'Finalizar Tour';
+            } else {
+                nextButton.textContent = 'Entendi / Próximo';
+            }
+
+            tooltip.classList.add('show');
+            tooltip.classList.remove('hidden');
+        }
+
+        function nextTourStep() {
+            currentStepIndex++;
+            showTourStep();
+        }
+
+        function skipTour() {
+            completeTourForTab();
+        }
+
+        function completeTourForTab() {
+            const tooltip = document.getElementById('tour-tooltip');
+            if (tooltip) { // Verifica se o elemento existe
+                tooltip.classList.remove('show');
+                tooltip.classList.add('hidden');
+            }
+            localStorage.setItem(TOUR_COMPLETED_KEY_PREFIX + currentTourTab, 'true');
+            currentTourTab = '';
+            currentStepIndex = 0;
+        }
+
+        function positionTooltip(target, tooltip) {
+            const targetRect = target.getBoundingClientRect();
+            const container = document.querySelector('.container');
+            const containerRect = container ? container.getBoundingClientRect() : { top: 0, left: 0, width: window.innerWidth, height: window.innerHeight };
+            const tooltipArrow = tooltip.querySelector('.tooltip-arrow');
+
+            tooltip.classList.remove('bottom', 'left', 'right');
+            tooltipArrow.style.left = '';
+            tooltipArrow.style.top = '';
+            tooltipArrow.style.transform = '';
+            tooltipArrow.style.border = '';
+
+            let top = targetRect.top - tooltip.offsetHeight - 15 - containerRect.top;
+            let left = targetRect.left + (targetRect.width / 2) - (tooltip.offsetWidth / 2) - containerRect.left;
+
+            if (left < 0) {
+                left = 5;
+            }
+
+            if (left + tooltip.offsetWidth > containerRect.width) {
+                left = containerRect.width - tooltip.offsetWidth - 5;
+            }
+
+            if (top < 0 && targetRect.bottom + tooltip.offsetHeight + 15 < window.innerHeight) {
+                top = targetRect.bottom + 15 - containerRect.top;
+                tooltip.classList.add('bottom');
+                tooltipArrow.style.left = `${(targetRect.width / 2)}px`;
+                tooltipArrow.style.top = `-10px`;
+            } else {
+                 tooltipArrow.style.left = `${(targetRect.width / 2)}px`;
+                 tooltipArrow.style.bottom = `-10px`;
+            }
+
+            if (window.innerWidth <= 600) {
+                left = (containerRect.width / 2) - (tooltip.offsetWidth / 2);
+                top = containerRect.height - tooltip.offsetHeight - 10;
+                tooltip.style.left = `${left}px`;
+                tooltip.style.top = `${top}px`;
+                tooltip.classList.remove('bottom', 'left', 'right');
+                tooltipArrow.style.display = 'none';
+                return;
+            }
+
+            tooltip.style.top = `${top}px`;
+            tooltip.style.left = `${left}px`;
+            tooltipArrow.style.display = 'block';
+        }
+
+    </script>
+</body>
+</html>
